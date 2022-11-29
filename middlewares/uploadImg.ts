@@ -5,6 +5,7 @@ import path from 'path'
 const { v4: uuid } = require("uuid");
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL, uploadBytesResumable } from "firebase/storage"
+import { reportError, getErrorMessage } from '../helpers/errorReport';
 
 type DestinationCallback = (error: Error | null, destination: string) => void
 type FileNameCallback = (error: Error | null, filename: string) => void
@@ -24,35 +25,61 @@ const profilePicsRef = ref(storageFire, 'images/profilepics');
 const productPicsRef = ref(storageFire, 'images/productpics');
 
 export const uploadFire = async (req: Request, file: Response, next: NextFunction) => {
-    const metadata = {
-        contentType: file.req.file?.mimetype
-    };
-    const fileName = file.req.file?.filename;
-    const localImgPath = file.req.file?.path || "../public/uploads/file.txt"
-    const spaceRef = ref(profilePicsRef, fileName);
-    const fileStream = fs.readFileSync(path.join(__dirname, '../public/uploads/' + fileName));
+    try {
+        const filenames = file.req.files as Array<Express.Multer.File>
+        const values = Object.values(filenames)
 
-    const uploadTask = uploadBytesResumable(spaceRef, fileStream, metadata);
-
-    uploadTask.on(
-        'state_changed',
-        (snapshot: { bytesTransferred: number; totalBytes: number; state: any; }) => {
-            console.log("Uploading data");            
-        },
-        (error: any) => {
-            console.log(error);
-        },
-        () => {
-            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL: string) => {
-                req.body.profilePic = downloadURL || "asdasda";
-                fs.unlink(localImgPath, (err) => {
-                    if (err) throw err;
-                    console.log('deleted: ', localImgPath);
-                });
-                next()
-            });
+        if (values.length < 1) {
+            throw new Error('Only .png, .svg, .webp, .jpg and .jpeg format allowed or file missing')
         }
-    )
+
+        const data = Object.values(values)
+        const result = Object.keys(data).map((key: any) => [Number(key), data[key]]);
+        const result2: Array<any> = Array(result)
+        const elementArr = result2[0][0][1]
+
+        const localPath: Array<any> = []
+
+        for (let index = 0; index < elementArr.length; index++) {
+            localPath.push(elementArr[index].path);
+        }
+
+        const uploader = []
+        for (let index = 0; index < elementArr.length; index++) {
+            const finalRef = elementArr[index].fieldname === 'profilePic' ? profilePicsRef : productPicsRef
+            const spaceRef2 = ref(finalRef, elementArr[index].filename);
+            let metadata = {
+                contentType: elementArr[index].mimetype
+            }
+            uploader.push(uploadBytes(spaceRef2, fs.readFileSync(localPath[index]), metadata))
+        }
+        const urls: Promise<string | void>[] = []
+        const picsArr: Array<any> = []
+        Promise.all(uploader)
+            .then(snapshot => {
+                snapshot.map(
+                    (snap) => {
+                        urls.push(getDownloadURL(snap.ref)
+                            .then((downloadURL: string) => {
+                                picsArr.push(downloadURL);
+                            }))
+                    });
+            })
+            .then(() => {
+                Promise.all(urls)
+                    .then((result) => {
+                        req.body.pics = picsArr;
+                        localPath.forEach((item) => {
+                            fs.unlink(item, (err) => {
+                                console.log('Deleted: ', item);
+                            })
+                        })
+                        next()
+                    })
+            });
+    } catch (error) {
+        file.status(400).json(reportError({ message: getErrorMessage(error) }))
+    }
 };
 
 const storage = multer.diskStorage({
@@ -67,25 +94,45 @@ const storage = multer.diskStorage({
 
 export const uploadLocalSingle = multer({
     storage,
-    dest: path.join(__dirname, '../public/uploads'),
-}).single("profilePic");
-
-// export const uploadLocalMultiple = multer({
-//     storage,
-//     dest: path.join(__dirname, '../public/uploads'),
-// }).array( 'productPic', 9000 )
-
+    fileFilter: (_req, file, cb) => {
+        if (
+            file.mimetype == "image/png"
+            || file.mimetype == "image/jpg"
+            || file.mimetype == "image/jpeg"
+            || file.mimetype == "image/svg+xml"
+            || file.mimetype == "image/webp"
+        ) {
+            cb(null, true);
+        } else {
+            cb(null, false);
+            //cb(new Error('Only .png, .svg, .webp, .jpg and .jpeg format allowed!'));
+        }
+    }
+})//.single("profilePic");
+    .fields(
+        [
+            { name: 'profilePic', maxCount: 1 },
+            { name: 'productPic', maxCount: 8 }
+        ]
+    )
 export const checkMultipart = async (req: Request, file: Response, next: NextFunction) => {
-    //console.log("file.req.headers ", file.req.headers);
+    //console.log("file.req ", req.headers);
     if (file.req.headers["content-type"] !== 'application/x-www-form-urlencoded') {
-        await uploadLocalSingle(req, file, next)
+        await uploadLocalSingle(req, file, function (err) {
+            if (err) {
+                console.log(err);
+
+                return file.status(400).json(reportError({ message: getErrorMessage(err) }))
+            }
+            next()
+        })
     }
     if (file.req.headers["content-type"] === 'application/x-www-form-urlencoded') {
         next()
     }
 }
 
-export const handleUploadFirebase = async (req: Request, file: Response, next: NextFunction) => {
+export const handleUploadFirebase = (req: Request, file: Response, next: NextFunction) => {
     if (file.req.headers["content-type"] !== 'application/x-www-form-urlencoded') {
         uploadFire(req, file, next)
     }

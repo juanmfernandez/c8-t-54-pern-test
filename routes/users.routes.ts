@@ -36,11 +36,11 @@ userRouter.get('/', getUser)
 userRouter.put(
   '/:id',
   checkMultipart,
+  handleUploadFirebase,
   checkSchema(user),
   handleValidator,
   updateUser
 )
 
-userRouter.delete("/:id");
 
 export default userRouter;

@@ -7,19 +7,28 @@ export const test = async (req: Request, res: Response) => {
   res.status(200).json({ Funciona: "Si funciona" });
 };
 
+//* Añadir producto al carrito
 export const addToCart = async (req: Request, res: Response) => {
   //* Requiere id del carrito y el id del producto (llegan desde query params)
   const { idProduct, idCart } = req.query;
   try {
     const product = await Product.findByPk(idProduct);
     const cart = await Cart.findByPk(idCart);
-    cart.increment({ totalPrice: product.price });
-    const productAdd = cart.addProducts(product);
-    res.status(200).json(productAdd);
+    if (product.quantityInStock > 0) {
+      const productAdd = cart.addProducts(product);
+      cart.increment({ totalPrice: product.price });
+      res.status(200).json(productAdd);
+    } else {
+      res
+        .status(200)
+        .json({ message: "No puede agregarse al carrito, no hay stock." });
+    }
   } catch (error) {
     res.status(400).json({ message: error });
   }
 };
+
+//* Remover producto del carrito
 export const remToCart = async (req: Request, res: Response) => {
   //* Requiere id del carrito y el id del producto (llegan desde query params)
   const { idProduct, idCart } = req.query;

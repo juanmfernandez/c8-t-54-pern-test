@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { getErrorMessage, reportError } from "../helpers/errorReport";
+import { Cart } from "../models/Carts";
 
 const hashPassword = async (password: string, saltRound: number) => {
     const salt = await bcrypt.genSalt(saltRound);
@@ -15,6 +16,7 @@ export const getUser = async (req: Request, res: Response) => {
         const user = await User.findOne({
             where: { email: email },
             attributes: { exclude: ["password"] },
+            include: Cart
         });
         res.status(200).json({ user: user })
     } catch (error) {
@@ -24,7 +26,7 @@ export const getUser = async (req: Request, res: Response) => {
 
 export const createUser = async (req: Request, res: Response) => {
     try {
-        const { userName, firstName, lastName, email, password, phoneNumber, userRole, profilePic } = req.body;
+        const { userName, firstName, lastName, email, password, phoneNumber, userRole, pics } = req.body;
         const hashedPassword = await hashPassword(password, 10)
         const [user, created] = await User.findOrCreate({
             where: email ? { email: email} : { userName: userName},
@@ -36,7 +38,7 @@ export const createUser = async (req: Request, res: Response) => {
                 password: hashedPassword,
                 phoneNumber: phoneNumber,
                 userRole: userRole,
-                profilePic: profilePic
+                profilePic: pics[0]
             }
         })
 
@@ -45,6 +47,14 @@ export const createUser = async (req: Request, res: Response) => {
             throw new Error(`${msg} already exists in database`)
         }
         await delete user.dataValues.password;
+        const cart = await Cart.create({ status:"activo", totalPrice:0 });
+        await Cart.update({userId: user.dataValues.id},{where: {
+            id: cart.dataValues.id
+        }})
+        await User.update({cartId: cart.dataValues.id},{where: {
+            id: user.dataValues.id
+        }})
+
         res.status(200).json({ success: `User added with e-mail ${req.body.email}`, user: user.dataValues })
     } catch (error) {
         res.status(400).json(reportError({ message: getErrorMessage(error) }))
@@ -118,3 +128,4 @@ export const updateUser = async (req: Request, res: Response) => {
         res.status(400).json(reportError({ message: getErrorMessage(error) }))
     }
 }
+

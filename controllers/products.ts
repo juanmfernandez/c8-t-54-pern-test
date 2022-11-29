@@ -30,7 +30,9 @@ export const productDetail = async (req: Request, res: Response) => {
 // Stores the product in the db
 export const saveProduct = async (req: Request, res: Response) => {
     try {
-        const { productName, description, quantityInStock, price } = req.body;
+        const { productName, description, quantityInStock, price, pics } = req.body;
+        //pics is an array that contains url's img
+        console.log(pics);
         const newProduct = await Product.create({
             productName,
             description,
