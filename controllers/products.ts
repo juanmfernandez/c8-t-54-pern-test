@@ -1,14 +1,16 @@
-import { Product } from "../models/Products";
+import { Product, ProductImgsAssoc } from "../models/Products";
 import { Request, Response } from "express";
 import { getErrorMessage, reportError } from "../helpers/errorReport";
+import { body } from "express-validator";
 
 // List of every product in db
 export const list = async (req: Request, res: Response) => {
     try {
         const products = await Product.findAll({
-            order: [["productName", "asc"]]
+            order: [["productName", "asc"]],
+            include: [{ association: "ProductImgs" }]
         })
-        res.status(200).json({products});
+        res.status(200).json({ products });
     } catch (error) {
         res.status(400).json(reportError({ message: getErrorMessage(error) }))
     }
@@ -16,58 +18,66 @@ export const list = async (req: Request, res: Response) => {
 
 // brings one product based in his id/UUID
 export const productDetail = async (req: Request, res: Response) => {
-     try {
+    try {
         const idP = req.params.id;
-         const product = await Product.findOne({
-             where: {id : idP}
-         });
-        res.status(200).json({product});
+        const product = await Product.findOne({
+            where: { id: idP },
+            include: [{ association: "ProductImgs" }]
+        });
+        res.status(200).json({ product });
     } catch (error) {
-            res.status(400).json(reportError({ message: getErrorMessage(error) }))
-     };
+        res.status(400).json(reportError({ message: getErrorMessage(error) }))
+    };
 };
 
 // Stores the product in the db
 export const saveProduct = async (req: Request, res: Response) => {
     try {
         const { productName, description, quantityInStock, price, pics } = req.body;
-        //pics is an array that contains url's img
-        console.log(pics);
+        //const pics = req.body.pic ? req.body.pic : "null"
+        let picsUrls: Array<any> = []
+        pics.forEach((url: any) => {
+            picsUrls.push({ status: "active", imgUrl: url })
+        });
         const newProduct = await Product.create({
             productName,
             description,
             quantityInStock,
-            price
+            price,
+            ProductImgs: picsUrls
+        }, {
+            include: [{
+                association: ProductImgsAssoc,
+                as: "ProductImgs",
+            }]
         })
-        res.status(201).json({message: "product added succesfully", newProduct})
+        res.status(201).json({ message: "New Product created", newProduct })
     } catch (error) {
         res.status(400).json(reportError({ message: getErrorMessage(error) }))
- };
+    };
 };
 
 export const updateProduct = async (req: Request, res: Response) => {
-    const productId = req.params.id; 
-    
+    const productId = req.params.id;
+
     try {
-        const productToUpdate = await Product.findByPk(productId,{});
-        await productToUpdate.update({
-            productName: req.body.productName,
-            description: req.body.description,
-            price: req.body.price,
-            quantityInStock: req.body.quantityInStock
-        });
+        const productToUpdate = await Product.findByPk(productId, {});
 
-        const productsaved = await productToUpdate.save();
+        if (productToUpdate !== null) {
+            await productToUpdate.update({
+                productName: req.body.productName,
+                description: req.body.description,
+                price: req.body.price,
+                quantityInStock: req.body.quantityInStock
+            });
+            return res.status(200).json(productToUpdate)
+        }
 
-        if (productsaved.id) return res.status(200).json(productsaved)
-        
-        res.status(400).json({ errorMessage: "Product could't be saved"})
-        
     } catch (error) {
-        console.log(error)
+        res.status(400).json({ errorMessage: "Product could't be saved" })
     }
 };
 
 export const deleteProduct = async (req: Request, res: Response) => {
-    
+
 };

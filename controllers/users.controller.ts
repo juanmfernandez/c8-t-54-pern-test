@@ -26,19 +26,14 @@ export const getUser = async (req: Request, res: Response) => {
 
 export const createUser = async (req: Request, res: Response) => {
     try {
-        const { userName, firstName, lastName, email, password, phoneNumber, userRole, pics } = req.body;
+        const { userName, email, password } = req.body;
         const hashedPassword = await hashPassword(password, 10)
         const [user, created] = await User.findOrCreate({
             where: email ? { email: email} : { userName: userName},
             defaults: {
-                firstName: firstName,
-                lastName: lastName,
                 userName: userName,
                 email: email,
                 password: hashedPassword,
-                phoneNumber: phoneNumber,
-                userRole: userRole,
-                profilePic: pics[0]
             }
         })
 
@@ -70,7 +65,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         });
 
         if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(404).json({
+            return res.status(401).json({
                 message: "User or password is not correct",
             });
         }
@@ -81,7 +76,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
         const token = jwt.sign({ user: user.dataValues }, secret, { expiresIn: "2h" });
 
-        return res.status(201).json({
+        return res.status(200).json({
             message: "User access successfully",
             data: {
                 user,

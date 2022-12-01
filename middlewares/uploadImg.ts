@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import * as fs from "fs";
-import multer, { MulterError } from 'multer'
+import multer from 'multer'
 import path from 'path'
 const { v4: uuid } = require("uuid");
 import { initializeApp } from "firebase/app";
-import { getStorage, ref, uploadBytes, getDownloadURL, uploadBytesResumable } from "firebase/storage"
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import { reportError, getErrorMessage } from '../helpers/errorReport';
 
 type DestinationCallback = (error: Error | null, destination: string) => void
@@ -105,18 +105,16 @@ export const uploadLocalSingle = multer({
             cb(null, true);
         } else {
             cb(null, false);
-            //cb(new Error('Only .png, .svg, .webp, .jpg and .jpeg format allowed!'));
         }
     }
-})//.single("profilePic");
-    .fields(
-        [
-            { name: 'profilePic', maxCount: 1 },
-            { name: 'productPic', maxCount: 8 }
-        ]
-    )
+}).fields(
+    [
+        { name: 'profilePic', maxCount: 1 },
+        { name: 'productPic', maxCount: 8 }
+    ]
+)
 export const checkMultipart = async (req: Request, file: Response, next: NextFunction) => {
-    //console.log("file.req ", req.headers);
+    console.log("file.req ", req.headers);
     if (file.req.headers["content-type"] !== 'application/x-www-form-urlencoded') {
         await uploadLocalSingle(req, file, function (err) {
             if (err) {

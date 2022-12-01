@@ -1,4 +1,4 @@
-const { db } = require('../utils/database.util');
+import { db } from '../utils/database.util';
 import { DataTypes } from 'sequelize' 
 
 const columns = {

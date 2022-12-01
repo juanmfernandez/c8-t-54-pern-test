@@ -3,10 +3,6 @@ const { User } = require("../models/Users");
 const { Cart } = require("../models/Carts");
 import { Request, Response } from "express";
 
-export const test = async (req: Request, res: Response) => {
-  res.status(200).json({ Funciona: "Si funciona" });
-};
-
 //* Añadir producto al carrito
 export const addToCart = async (req: Request, res: Response) => {
   //* Requiere id del carrito y el id del producto (llegan desde query params)
@@ -28,7 +24,7 @@ export const addToCart = async (req: Request, res: Response) => {
   }
 };
 
-//* Remover producto del carrito
+//* Remover producto en particular del carrito
 export const remToCart = async (req: Request, res: Response) => {
   //* Requiere id del carrito y el id del producto (llegan desde query params)
   const { idProduct, idCart } = req.query;
@@ -43,20 +39,24 @@ export const remToCart = async (req: Request, res: Response) => {
   }
 };
 
-export const createCart = async (req: Request, res: Response) => {
-  const { status, totalPrice } = req.body;
-  try {
-    const cart = await Cart.create({ status, totalPrice });
-    res.status(200).json(cart);
-  } catch (error) {
-    res.status(400).json({ message: error });
-  }
-};
-
+//* Traer carrito con los productos
 export const getCart = async (req: Request, res: Response) => {
   const { idCart } = req.query;
   try {
     const cart = await Cart.findByPk(idCart, { include: Product });
     res.status(200).json(cart);
   } catch (error) {}
+};
+
+//* Vaciar carrito
+export const deleteCart = async (req: Request, res: Response) => {
+  const { idCart } = req.query;
+
+  try {
+    const cart = await Cart.findByPk(idCart, { include: Product });
+    await cart.removeProducts(cart.dataValues.Products);
+    res.status(200).json(cart);
+  } catch (error) {
+    res.status(500).json({ messaje: error });
+  }
 };

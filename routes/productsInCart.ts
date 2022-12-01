@@ -1,10 +1,15 @@
 import { Router } from "express";
-import { addToCart, createCart, getCart, remToCart } from "../controllers/productsInCart";
+import {
+  addToCart,
+  deleteCart,
+  getCart,
+  remToCart,
+} from "../controllers/productsInCart";
 
 const prodInCart = Router();
 
-prodInCart.get("/", getCart);
-prodInCart.post("/add", addToCart);
-prodInCart.post("/remove", remToCart);
-prodInCart.post("/addCart", createCart);
+prodInCart.get("/", getCart); //* Show cart
+prodInCart.post("/add", addToCart); //* Add a product to the cart
+prodInCart.post("/remove", remToCart); //* Remove a product from the cart
+prodInCart.delete("/delete", deleteCart); //* Remove all products from the cart
 export default prodInCart;

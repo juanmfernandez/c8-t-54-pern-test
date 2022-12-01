@@ -1,6 +1,5 @@
-const { db } = require('../utils/database.util');
+import { db } from '../utils/database.util';
 import { DataTypes } from 'sequelize';
-import { Product } from './Products';
 
 const columns = {
     id: {
@@ -24,8 +23,5 @@ const columns = {
 const config = {}
 
 const ProductImgs = db.define('ProducstImgs', columns, config);
-
-//ProductImgs.belongsTo(Product);
-
 
 export {ProductImgs};

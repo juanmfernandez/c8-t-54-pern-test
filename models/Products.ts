@@ -1,11 +1,14 @@
-const { db } = require("../utils/database.util");
+import { db } from "../utils/database.util";
 import { DataTypes } from "sequelize";
-import { Categorie } from "./Categories";
+import { Categories } from "./Categories";
 import { ProductImgs } from "./ProductImgs";
 import { Order } from "./Orders";
 import { User } from "./Users";
+import { Colour } from "./Colours";
 
-const columns = {
+const config = {};
+
+const Product = db.define("Product", {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
@@ -26,25 +29,30 @@ const columns = {
   },
   price: {
     type: DataTypes.DECIMAL,
+    get() {
+      const rawValue = this.getDataValue('price');
+      return rawValue ? parseFloat(rawValue) : null;
+    },
     allowNull: false,
-  },
-};
+  }
+}, config);
 
-const config = {};
+Product.belongsToMany(Categories, { through: "ProductCategories", foreignKey: "productId", otherKey: "categoryId" });
 
-const Product = db.define("Product", columns, config);
+//Product.hasMany(ProductImgs, {  foreignKey: "ProductId" });
+const ProductImgsAssoc = Product.hasMany(ProductImgs, {as:"ProductImgs", foreignKey: "ProductId" });
 
-Product.belongsTo(Categorie);
-
-Product.hasMany(ProductImgs, { foreignKey: "ProductId" });
+Product.belongsToMany(Colour, {
+  through: "ProductColours",
+  foreignKey: "productId",
+  otherKey: "colourId",
+});
 
 Product.belongsToMany(User, {
   through: "Favorites",
-  foreignKey: "ProductId",
+  foreignKey: "productId",
   otherKey: "userId",
 });
-
-// Product.belongsToMany(Cart, { through: 'ProductsInCart', foreignKey: 'productId', otheKey: 'cartId'});
 
 Product.belongsToMany(Order, {
   through: "ProductsInOrder",
@@ -52,4 +60,5 @@ Product.belongsToMany(Order, {
   otherKey: "orderId",
 });
 
-export { Product };
+
+export { Product, ProductImgs, ProductImgsAssoc };

@@ -15,8 +15,6 @@ import { checkMultipart, handleUploadFirebase } from "../middlewares/uploadImg"
 
 userRouter.post(
   "/",
-  checkMultipart,
-  handleUploadFirebase,
   checkSchema(user),
   handleValidator,
   createUser

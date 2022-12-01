@@ -18,11 +18,11 @@ export const user: Schema = {
       },
     },
     userName: {
+      optional: true,
       exists: { errorMessage: "Username is required" },
       isLength: {options: { min: 3, max: 20}, errorMessage: "username should be at least 3-20 characters"},
     },
     email: {
-      optional: true,
       isEmail: { errorMessage: "Please provide a valid e-mail" },
     },
   };
