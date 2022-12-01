@@ -1,7 +1,7 @@
 import { Product, ProductImgsAssoc } from "../models/Products";
 import { Request, Response } from "express";
 import { getErrorMessage, reportError } from "../helpers/errorReport";
-import { body } from "express-validator";
+
 
 // List of every product in db
 export const list = async (req: Request, res: Response) => {

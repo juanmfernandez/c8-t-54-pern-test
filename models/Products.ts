@@ -6,7 +6,11 @@ import { Order } from "./Orders";
 import { User } from "./Users";
 import { Colour } from "./Colours";
 
-const config = {};
+const config = {
+  tableName: "Products",
+  timestamps: true,
+  paranoid: true
+};
 
 const Product = db.define("Product", {
   id: {
@@ -34,6 +38,9 @@ const Product = db.define("Product", {
       return rawValue ? parseFloat(rawValue) : null;
     },
     allowNull: false,
+  }, 
+  deletedAt: {
+    type: DataTypes.STRING,
   }
 }, config);
 

@@ -7,10 +7,6 @@ import { User } from "../models/Users";
 
 dotenv.config({ path: ".env" });
 
-// export const userMe = async (req: Request, res: Response) => {
-//   res.send(req.user);
-// };
- 
 export const protectRouters = async (req: Request, res: Response, next: NextFunction) => {
   try {
     let token: string = ''
