@@ -7,5 +7,8 @@ export interface UserDataInterface {
     password: string,
     phoneNumber: number,
     userRole: string
-    profilePic: string
+    profilePic: string,
+    createdAt: string,
+    updatedAt: string,
+    deletedAt: string | undefined | null
 }

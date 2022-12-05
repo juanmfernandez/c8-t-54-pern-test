@@ -4,6 +4,8 @@ import { Order } from './Orders';
 import { Product } from './Products';
 import { Categories } from './Categories';
 import { Colour } from './Colours';
+import { Size } from './Sizes';
+
 
 //
 User.hasMany(Order, { foreignKey: "userId" });
@@ -11,7 +13,6 @@ User.hasMany(Product, { foreignKey: 'userId' }); // Association para Favorites.
 
 // 
 Cart.belongsTo(User, { foreignKey: "userId" });
-Cart.belongsToMany(Product, { through: "ProductsInCart", foreignKey: "cartId", otherKey: "productId", });
 
 //
 Categories.hasMany(Product, { foreignKey: "categoryId" });
@@ -25,5 +26,8 @@ Product.hasMany(Colour, { foreignKey: 'productId' });
 //
 Colour.belongsToMany(Product, { through: "ProductColours", foreignKey: "colourId", otherKey: "productId" })
 
+Size.belongsToMany(Product, { through: "ProductSize", foreignKey: "sizeId", otherKey: "productId" });
 
-export { User, Cart, Categories, Order, Colour, Product };
+
+
+export { User, Cart, Categories, Order, Colour, Product, Size};
