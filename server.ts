@@ -7,7 +7,7 @@ const startServer = async () => {
     await db.sync({force:false});
     console.log("Db connected");
     const PORT = process.env.PORT || 3000;
-
+    console.log("process.env.HOST ", process.env.HOST, " || ", "process.env.CLIENT_URL", process.env.HOST)
     app.listen(PORT, () => {
       console.log("Express app running", PORT);
     });
