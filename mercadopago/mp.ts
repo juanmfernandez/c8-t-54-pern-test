@@ -1,4 +1,5 @@
 import mercadopago from 'mercadopago' ;
+import { Request, Response } from "express";
 import { getErrorMessage, reportError } from "../helpers/errorReport";
 import { CreatePreferencePayload } from "mercadopago/models/preferences/create-payload.model";
 import { UserDataInterface } from '../interfaces/user.interface';
@@ -6,12 +7,12 @@ import { UserDataInterface } from '../interfaces/user.interface';
 const clientSecret = process.env.CLIENT_SECRET;
 const clientId= process.env.CLIENT_ID;
 
-const server = process.env.SERVER /*?¡?¡*/ || 'http://localhost:3000' || "https://c854pernfront-5m8om.ondigitalocean.app";
-const success = `${server}/checkout/success`;
-const failure = `${server}/checkout/failure`;
-const pending = `${server}/checkout/pending`;
-
-export const mp = async (items: Array<Object>, user: UserDataInterface) => {
+export const mp = async (items: Array<Object>, user: UserDataInterface, req: Request) => {
+    console.log("file.req ", req.headers);
+    const server = req.headers.origin || 'http://localhost:3000' || "https://c854pernfront-5m8om.ondigitalocean.app";
+    const success = `${server}/checkout/success`;
+    const failure = `${server}/checkout/failure`;
+    const pending = `${server}/checkout/pending`;
     try{
 
         if(clientSecret && clientId){

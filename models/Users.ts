@@ -37,6 +37,7 @@ const columns = {
     },
     userRole: {
         type: DataTypes.STRING,
+        defaultValue: "user"
     },
 };
 

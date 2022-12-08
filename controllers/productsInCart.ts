@@ -12,9 +12,13 @@ export const addToCart = async (req: Request, res: Response) => {
   try {
     const product = await Product.findByPk(idProduct);
     const cart = await Cart.findByPk(idCart);
+    console.log("before",cart.dataValues.totalPrice);
     if (product.quantityInStock > 0) {
       const productAdd = await cart.addProducts(product);
       await cart.increment({ totalPrice: product.price });
+
+      console.log("after",cart.dataValues.totalPrice);
+      
       res.status(200).json(productAdd);
     } else {
       res
@@ -33,8 +37,10 @@ export const remToCart = async (req: Request, res: Response) => {
   try {
     const product = await Product.findByPk(idProduct);
     const cart = await Cart.findByPk(idCart);
+    console.log("before",cart.dataValues.totalPrice);
     await cart.decrement({ totalPrice: product.price });
     const productRemove = await cart.removeProducts(product);
+    console.log("after",cart.dataValues.totalPrice);
     res.status(200).json(productRemove);
   } catch (error) {
     res.status(400).json(reportError({ message: getErrorMessage(error) }));

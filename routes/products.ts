@@ -4,16 +4,19 @@ import { productSchema } from "../schemas/product"
 import { checkSchema } from "express-validator";
 import { handleValidator } from "../helpers/handleValidator";
 import { checkMultipart, handleUploadFirebase } from "../middlewares/uploadImg"
+import { protectRouters } from "../controllers/authController";
 const productRouter = Router()
 
-productRouter.get('/', list) // list of every product in db    
+productRouter.get('/', list)  
 
-productRouter.post('/save', checkMultipart, handleUploadFirebase, checkSchema(productSchema), handleValidator, saveProduct); // save the product in the db
+productRouter.get('/:id', productDetail); 
 
-productRouter.get('/:id', productDetail); // return an specific product, based in his id/UUID
+productRouter.use(protectRouters);
 
-productRouter.put('/update/:id', checkSchema(productSchema), handleValidator, updateProduct); // save and update the changes 
+productRouter.post('/save', checkMultipart, handleUploadFirebase, checkSchema(productSchema), handleValidator, saveProduct); 
 
-productRouter.delete('/delete/:id', deleteProduct); // delete the product (>_<)
+productRouter.put('/update/:id', checkSchema(productSchema), handleValidator, updateProduct);
+
+productRouter.delete('/delete/:id', deleteProduct);
 
 export default productRouter;
