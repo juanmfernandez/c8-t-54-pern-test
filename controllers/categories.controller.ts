@@ -2,7 +2,6 @@ import { Categories } from "../models/Categories";
 import { Request, Response } from "express";
 import { getErrorMessage, reportError } from "../helpers/errorReport";
 
-//
 export const list = async (req: Request, res: Response) => {
     try {
         const allCategories = await Categories.findAll();
@@ -12,7 +11,6 @@ export const list = async (req: Request, res: Response) => {
     }
 };
 
-//
 export const saveCategory = async (req: Request, res: Response) => {
     try {
         const { categoryName } = req.body;
@@ -22,16 +20,12 @@ export const saveCategory = async (req: Request, res: Response) => {
 
         })
         res.status(201).json({ message: "Category added succesfully", newCategory })
-    
+
     } catch (error) {
         res.status(400).json(reportError({ message: getErrorMessage(error) }))
     };
 };
 
-
-
-
-//
 export const update = async (req: Request, res: Response) => {
     const categoryId = req.params.id;
 
@@ -50,7 +44,6 @@ export const update = async (req: Request, res: Response) => {
     }
 };
 
-//
 export const deleteColour = async (req: Request, res: Response) => {
     res.send('controller no disponible :P')
 };

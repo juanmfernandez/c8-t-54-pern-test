@@ -16,7 +16,7 @@ const db = new Sequelize(
     host: dbHost,
     dialect: "postgres",
     dialectOptions: { decimalNumbers: true },
-    logging: true,
+    logging: false,
   }
 );
 

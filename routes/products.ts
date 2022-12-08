@@ -7,13 +7,13 @@ import { checkMultipart, handleUploadFirebase } from "../middlewares/uploadImg"
 import { protectRouters } from "../controllers/authController";
 const productRouter = Router()
 
-productRouter.get('/', list)  
+productRouter.get('/', list)
 
-productRouter.get('/:id', productDetail); 
+productRouter.get('/:id', productDetail);
 
 productRouter.use(protectRouters);
 
-productRouter.post('/save', checkMultipart, handleUploadFirebase, checkSchema(productSchema), handleValidator, saveProduct); 
+productRouter.post('/save', checkMultipart, handleUploadFirebase, checkSchema(productSchema), handleValidator, saveProduct);
 
 productRouter.put('/update/:id', checkSchema(productSchema), handleValidator, updateProduct);
 

@@ -33,7 +33,7 @@ export const createSize = async (req: Request, res: Response) => {
         const newSize = await Size.create({
             sizeLetter,
             description,
-            gender, 
+            gender,
             sizeNumber
         })
         res.status(201).json({ message: "New Size created", newSize })
@@ -76,7 +76,7 @@ export const deleteSize = async (req: Request, res: Response) => {
             throw new Error(`ID ${id} not found in database`)
         }
 
-        return res.status(200).json({success: `ID ${id} just deleted successfully`})
+        return res.status(200).json({ success: `ID ${id} just deleted successfully` })
 
     } catch (error) {
         res.status(400).json(reportError({ message: getErrorMessage(error) }))

@@ -114,12 +114,10 @@ export const uploadLocalSingle = multer({
     ]
 )
 export const checkMultipart = async (req: Request, file: Response, next: NextFunction) => {
-    console.log("file.req ", req.headers);
+
     if (file.req.headers["content-type"] !== 'application/x-www-form-urlencoded') {
         await uploadLocalSingle(req, file, function (err) {
             if (err) {
-                console.log(err);
-
                 return file.status(400).json(reportError({ message: getErrorMessage(err) }))
             }
             next()

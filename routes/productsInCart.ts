@@ -8,8 +8,8 @@ import {
 
 const prodInCart = Router();
 
-prodInCart.get("/", getCart); //* Show cart
-prodInCart.post("/add", addToCart); //* Add a product to the cart
-prodInCart.post("/remove", remToCart); //* Remove a product from the cart
-prodInCart.delete("/delete", deleteCart); //* Remove all products from the cart
+prodInCart.get("/", getCart);
+prodInCart.post("/add", addToCart);
+prodInCart.post("/remove", remToCart);
+prodInCart.delete("/delete", deleteCart);
 export default prodInCart;

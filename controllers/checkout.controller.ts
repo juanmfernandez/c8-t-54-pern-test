@@ -34,8 +34,6 @@ export const process = async (req: Request, res: Response) => {
                 }
 
                 let link = await mp(itemsPrueba, userPrueba, req);
-                //let link = await mp(items, req.body.user);
-                //return res.redirect(link?.body.init_point);
                 res.status(201).json({ "link": link?.body.init_point })
 
         } catch (error) {
