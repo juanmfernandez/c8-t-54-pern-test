@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.ts",
+    "start": "server.ts",
     "test": "echo \"No test specified\""
   },
   "keywords": [],
